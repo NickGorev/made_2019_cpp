@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include "calculator.h"
 
 int main(int argc, char *argv[]) {

@@ -1,5 +1,4 @@
 #include <cctype>
-#include <string>
 #include <stdexcept>
 #include "calculator.h"
 
