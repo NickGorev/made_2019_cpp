@@ -44,12 +44,19 @@ TEST_CASE( "test LinearAllocator" ) {
 
         allocator.reset();
 
-        char* variable3 = allocator.alloc(1);
-        int* variable4 = (int*) allocator.alloc(sizeof(int) * 1);
-        *variable3 = 'C';
-        *variable4 = 1357924680;
+        char* variable3 = allocator.alloc(10);
+        char* variable4 = allocator.alloc(7);
+        REQUIRE( variable3 != nullptr );
+        REQUIRE( variable4 == nullptr );
 
-        REQUIRE( *variable3 == 'C' );
-        REQUIRE( *variable4 == 1357924680 );
+        allocator.reset();
+
+        char* variable5 = allocator.alloc(1);
+        int* variable6 = (int*) allocator.alloc(sizeof(int) * 1);
+        *variable5 = 'C';
+        *variable6 = 1357924680;
+
+        REQUIRE( *variable5 == 'C' );
+        REQUIRE( *variable6 == 1357924680 );
     }
 }
