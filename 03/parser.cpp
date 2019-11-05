@@ -1,11 +1,11 @@
 #include "parser.h"
 
-void Parser::parse(std::string inputString) {
+void Parser::parse(const std::string& inputString) {
     if (beforeCallback) {
         beforeCallback(inputString);
     }
 
-    std::string::iterator inputIt = inputString.begin();
+    auto inputIt = inputString.begin();
     while (inputIt != inputString.end() && std::isspace(*inputIt)) {
         ++inputIt;
     }
@@ -42,3 +42,4 @@ void Parser::parse(std::string inputString) {
         afterCallback(inputString);
     }
 }
+

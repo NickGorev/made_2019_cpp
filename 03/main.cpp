@@ -11,14 +11,13 @@ TEST_CASE( "test Parser" ) {
         Parser parser;
 
         std::string startString;
-        auto beforeCallback = [&startString](std::string& token) {
-            token = "before " + token;
+        auto beforeCallback = [&startString](const std::string& token) {
             startString = token;
             return;
         };
 
         std::string endString;
-        auto afterCallback = [&endString](std::string token) {
+        auto afterCallback = [&endString](const std::string& token) {
             endString = token + " after";
             return;
         };
@@ -27,15 +26,15 @@ TEST_CASE( "test Parser" ) {
         parser.setAfterCallback(afterCallback);
         parser.parse("123");
 
-        REQUIRE( startString == std::string("before 123") );
-        REQUIRE( endString == std::string("before 123 after") );
+        REQUIRE( startString == std::string("123") );
+        REQUIRE( endString == std::string("123 after") );
     }
 
     SECTION( "test number callback" ) {
         Parser parser;
 
         std::vector<int> numbers;
-        auto numberCallback = [&numbers](std::string token) {
+        auto numberCallback = [&numbers](const std::string& token) {
             numbers.push_back(std::stoi(token));
             return;
         };
@@ -54,7 +53,7 @@ TEST_CASE( "test Parser" ) {
         Parser parser;
 
         std::vector<std::string> stringTokens;
-        auto stringCallback = [&stringTokens](std::string token) {
+        auto stringCallback = [&stringTokens](const std::string& token) {
             stringTokens.push_back(token);
             return;
         };
@@ -73,13 +72,13 @@ TEST_CASE( "test Parser" ) {
         Parser parser;
 
         std::vector<int> numbers;
-        auto numberCallback = [&numbers](std::string token) {
+        auto numberCallback = [&numbers](const std::string& token) {
             numbers.push_back(std::stoi(token));
             return;
         };
 
         std::vector<std::string> stringTokens;
-        auto stringCallback = [&stringTokens](std::string token) {
+        auto stringCallback = [&stringTokens](const std::string& token) {
             stringTokens.push_back(token);
             return;
         };
@@ -105,26 +104,25 @@ TEST_CASE( "test Parser" ) {
     SECTION( "test all four callbacks" ) {
 
         std::string startString;
-        auto beforeCallback = [&startString](std::string& token) {
-            token = "before " + token;
+        auto beforeCallback = [&startString](const std::string& token) {
             startString = token;
             return;
         };
 
         std::string endString;
-        auto afterCallback = [&endString](std::string token) {
+        auto afterCallback = [&endString](const std::string& token) {
             endString = token + " after";
             return;
         };
 
         std::vector<int> numbers;
-        auto numberCallback = [&numbers](std::string token) {
+        auto numberCallback = [&numbers](const std::string& token) {
             numbers.push_back(std::stoi(token));
             return;
         };
 
         std::vector<std::string> stringTokens;
-        auto stringCallback = [&stringTokens](std::string token) {
+        auto stringCallback = [&stringTokens](const std::string& token) {
             stringTokens.push_back(token);
             return;
         };
@@ -132,14 +130,14 @@ TEST_CASE( "test Parser" ) {
         Parser parser(beforeCallback, afterCallback, stringCallback, numberCallback);
         parser.parse("1234567890 pqrs");
 
-        REQUIRE( startString == std::string("before 1234567890 pqrs") );
-        REQUIRE( endString == std::string("before 1234567890 pqrs after") );
+        REQUIRE( startString == std::string("1234567890 pqrs") );
+        REQUIRE( endString == std::string("1234567890 pqrs after") );
 
         REQUIRE( numbers.size() == 1 );
         REQUIRE( numbers[0] == 1234567890 );
 
-        REQUIRE( stringTokens.size() == 2 );
-        REQUIRE( stringTokens[0] == std::string("before") );
-        REQUIRE( stringTokens[1] == std::string("pqrs") );
+        REQUIRE( stringTokens.size() == 1 );
+        REQUIRE( stringTokens[0] == std::string("pqrs") );
     }
 }
+
