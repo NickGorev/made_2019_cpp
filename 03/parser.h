@@ -6,10 +6,11 @@
 class Parser {
     public:
         using Callback = std::function<void (const std::string&)>;
+        using NumberCallback = std::function<void (int)>;
         Parser(Callback beforeCallback = nullptr,
                Callback afterCallback = nullptr,
                Callback stringCallback = nullptr,
-               Callback numberCallback = nullptr)
+               NumberCallback numberCallback = nullptr)
                 : beforeCallback(beforeCallback)
                 , afterCallback(afterCallback)
                 , stringCallback(stringCallback)
@@ -24,7 +25,7 @@ class Parser {
         void setStringCallback(Callback stringCallback) {
             this->stringCallback = stringCallback;
         }
-        void setNumberCallback(Callback numberCallback) {
+        void setNumberCallback(NumberCallback numberCallback) {
             this->numberCallback = numberCallback;
         }
 
@@ -34,7 +35,7 @@ class Parser {
         Callback beforeCallback;
         Callback afterCallback;
         Callback stringCallback;
-        Callback numberCallback;
+        NumberCallback numberCallback;
 };
 
 #endif /* PARSER_H_ */

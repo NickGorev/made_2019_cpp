@@ -25,7 +25,7 @@ void Parser::parse(const std::string& inputString) {
 
         if (isNumberToken) {
             if (numberCallback) {
-                numberCallback(token);
+                numberCallback(std::stoi(token));
             }
         } else {
             if (stringCallback) {

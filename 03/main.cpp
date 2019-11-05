@@ -34,8 +34,8 @@ TEST_CASE( "test Parser" ) {
         Parser parser;
 
         std::vector<int> numbers;
-        auto numberCallback = [&numbers](const std::string& token) {
-            numbers.push_back(std::stoi(token));
+        auto numberCallback = [&numbers](int number) {
+            numbers.push_back(number);
             return;
         };
 
@@ -72,8 +72,8 @@ TEST_CASE( "test Parser" ) {
         Parser parser;
 
         std::vector<int> numbers;
-        auto numberCallback = [&numbers](const std::string& token) {
-            numbers.push_back(std::stoi(token));
+        auto numberCallback = [&numbers](int number) {
+            numbers.push_back(number);
             return;
         };
 
@@ -116,8 +116,8 @@ TEST_CASE( "test Parser" ) {
         };
 
         std::vector<int> numbers;
-        auto numberCallback = [&numbers](const std::string& token) {
-            numbers.push_back(std::stoi(token));
+        auto numberCallback = [&numbers](int number) {
+            numbers.push_back(number);
             return;
         };
 
