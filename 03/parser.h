@@ -7,10 +7,10 @@ class Parser {
     public:
         using Callback = std::function<void (const std::string&)>;
         using NumberCallback = std::function<void (int)>;
-        Parser(Callback beforeCallback = nullptr,
-               Callback afterCallback = nullptr,
-               Callback stringCallback = nullptr,
-               NumberCallback numberCallback = nullptr)
+        Parser(const Callback& beforeCallback = nullptr,
+               const Callback& afterCallback = nullptr,
+               const Callback& stringCallback = nullptr,
+               const NumberCallback& numberCallback = nullptr)
                 : beforeCallback(beforeCallback)
                 , afterCallback(afterCallback)
                 , stringCallback(stringCallback)
