@@ -9,7 +9,7 @@ test: runtests
 runtests: main.o allocator.o
 	$(CC) $(CXXFLAGS) -o runtests main.o allocator.o
 
-main.o: main.cpp allocator.h catch.hpp
+main.o: main.cpp allocator.h ../catch/catch.hpp
 	$(CC) $(CXXFLAGS) -c main.cpp
 
 allocator.o: allocator.cpp allocator.h
