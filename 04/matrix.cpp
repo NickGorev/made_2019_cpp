@@ -19,6 +19,7 @@ Matrix::Matrix(size_t rows, size_t cols)
     : rows_(rows), cols_(cols) {
     data_ = new int[rows * cols];
 }
+
 Matrix::Matrix(const Matrix& m)
     : rows_(m.rows_), cols_(m.cols_) {
     data_ = new int[rows_ * cols_];
@@ -26,7 +27,6 @@ Matrix::Matrix(const Matrix& m)
         data_[i] = m.data_[i];
     }
 }
-
 
 Matrix::~Matrix() {
     delete[] data_;
