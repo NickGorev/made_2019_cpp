@@ -36,11 +36,11 @@ class Serializer {
             return process(std::forward<Args>(args)...);
         }
 
-        void output(bool& val) {
+        void output(bool val) {
             out_ << (val ? "true" : "false");
         }
 
-        void output(uint64_t& val) {
+        void output(uint64_t val) {
             out_ << val;
         }
 };
