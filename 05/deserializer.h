@@ -23,12 +23,7 @@ class Deserializer {
     private:
         std::istream& in_;
 
-        template<class T>
-        Error process(T&& val) {
-            Error err = load(val);
-            if (!in_ || err == Error::ErrorDeserialize) {
-                return Error::ErrorDeserialize;
-            }
+        Error process() {
             return Error::NoError;
         }
 

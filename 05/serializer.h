@@ -6,7 +6,6 @@
 #include "errors.h"
 
 class Serializer {
-        static constexpr char Separator = ' ';
     public:
         explicit Serializer(std::ostream& out)
             : out_(out) {}
@@ -23,17 +22,17 @@ class Serializer {
 
     private:
         std::ostream& out_;
+        const char* Separator = "";
 
-        template<class T>
-        Error process(T&& val) {
-            output(val);
+        Error process() {
             return out_ ? Error::NoError : Error::ErrorSerialize;
         }
 
         template<class T, class ... Args>
         Error process(T&& val, Args&&... args) {
-            output(val);
             out_ << Separator;
+            Separator = " ";
+            output(val);
             return process(std::forward<Args>(args)...);
         }
 
