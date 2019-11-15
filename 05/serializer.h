@@ -18,7 +18,7 @@ class Serializer {
 
         template<class ... ArgsT>
         Error operator()(ArgsT&& ... args) {
-            return process(args...);
+            return process(std::forward<ArgsT>(args)...);
         }
 
     private:
