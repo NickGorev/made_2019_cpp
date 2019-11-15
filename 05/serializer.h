@@ -2,6 +2,7 @@
 #define SERIALIZER_H_
 
 #include <type_traits>
+#include <ostream>
 #include "errors.h"
 
 class Serializer {

@@ -2,6 +2,7 @@
 #define DESERIALIZER_H_
 
 #include <type_traits>
+#include <istream>
 #include "errors.h"
 
 class Deserializer {
