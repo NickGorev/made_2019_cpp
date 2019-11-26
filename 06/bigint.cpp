@@ -2,10 +2,10 @@
 
 // Копирующий конструктор
 BigInt::BigInt(const BigInt& n) {
-        size_ = n.size_;
-        data_ = new char(size_);
-        std::copy(n.data_, n.data_ + size_, data_);
-        neg_signum = n.neg_signum;
+    size_ = n.size_;
+    data_ = new char(size_);
+    std::copy(n.data_, n.data_ + size_, data_);
+    neg_signum = n.neg_signum;
 }
 
 // Конструктор перемещения
@@ -36,11 +36,10 @@ BigInt::BigInt(long long int n) {
     std::copy(buffer, buffer + digits, data_);
 }
 
-
 // Копирующий оператор присваивания
-BigInt & BigInt::operator = (const BigInt & copied) {
+BigInt & BigInt::operator =(const BigInt & copied) {
     if (this == &copied)
-            return *this;
+        return *this;
 
     char* ptr = new char[copied.size_];
     delete[] data_;
@@ -52,9 +51,9 @@ BigInt & BigInt::operator = (const BigInt & copied) {
 }
 
 // Оператор перемещения
-BigInt & BigInt::operator = (BigInt && moved) {
+BigInt & BigInt::operator =(BigInt && moved) {
     if (this == &moved)
-            return *this;
+        return *this;
 
     data_ = moved.data_;
     moved.data_ = nullptr;
@@ -64,9 +63,8 @@ BigInt & BigInt::operator = (BigInt && moved) {
     return *this;
 }
 
-
 // Оператор вывода в поток
-std::ostream& operator<< (std::ostream &out, const BigInt &n) {
+std::ostream& operator<<(std::ostream &out, const BigInt &n) {
     if (n.size_ == 0) {
         out << '0';
         return out;
@@ -80,7 +78,6 @@ std::ostream& operator<< (std::ostream &out, const BigInt &n) {
     return out;
 }
 
-
 // вспомогательная функция для сравнения абсолютных значений
 // abs(*this) < abs(other)
 bool BigInt::abs_lower(const BigInt & other) const {
@@ -90,22 +87,29 @@ bool BigInt::abs_lower(const BigInt & other) const {
     if (size_ > other.size_) {
         return false;
     }
-    if (size_ == 0) return false;
+    if (size_ == 0)
+        return false;
     for (int i = size_ - 1; i >= 0; --i) {
         int digit1 = static_cast<int>(data_[i]);
         int digit2 = static_cast<int>(other.data_[i]);
-        if (digit1 < digit2) return true;
-        if (digit1 > digit2) return false;
+        if (digit1 < digit2)
+            return true;
+        if (digit1 > digit2)
+            return false;
     }
     return false;
 }
 
 // Операторы сравнения
 bool BigInt::operator <(const BigInt &other) const {
-    if(neg_signum && !other.neg_signum) return true;
-    if(!neg_signum && other.neg_signum) return false;
-    if(!neg_signum && !other.neg_signum) return abs_lower(other);
-    if(neg_signum && other.neg_signum) return other.abs_lower(*this);
+    if (neg_signum && !other.neg_signum)
+        return true;
+    if (!neg_signum && other.neg_signum)
+        return false;
+    if (!neg_signum && !other.neg_signum)
+        return abs_lower(other);
+    if (neg_signum && other.neg_signum)
+        return other.abs_lower(*this);
     return false;
 }
 
@@ -114,10 +118,13 @@ bool BigInt::operator >(const BigInt &other) const {
 }
 
 bool BigInt::operator ==(const BigInt &other) const {
-    if (this->neg_signum != other.neg_signum) return false;
-    if (this->size_ != other.size_) return false;
-    for(size_t i = 0; i < size_; i++) {
-        if (data_[i] != other.data_[i]) return false;
+    if (this->neg_signum != other.neg_signum)
+        return false;
+    if (this->size_ != other.size_)
+        return false;
+    for (size_t i = 0; i < size_; i++) {
+        if (data_[i] != other.data_[i])
+            return false;
     }
     return true;
 }
@@ -134,7 +141,6 @@ bool BigInt::operator <=(const BigInt &other) const {
     return !(*this > other);
 }
 
-
 // унарный минус для lvalue (создает копию с изменением знака)
 BigInt BigInt::operator-() const & {
     BigInt tmp(*this);
@@ -148,7 +154,6 @@ BigInt BigInt::operator-() && {
     return *this;
 }
 
-
 // Вспомогательная функция для сложение/вычитание модулей двух чисел
 // sign == PLUS:  abs(*this) + abs(other)
 // sign == MINUS: abs(*this) - abs(other), при условии abs(*this) > abs(other)
@@ -156,7 +161,7 @@ BigInt BigInt::abs_add_sub(const BigInt & other, OpSgn sign) const {
     size_t buffer_size = std::max(size_, other.size_) + 1;
     char* buffer = new char(buffer_size);
     int carry = 0;
-    for(size_t i = 0; i < buffer_size; i++) {
+    for (size_t i = 0; i < buffer_size; i++) {
         int digit1 = (i < size_) ? data_[i] : 0;
         int digit2 = (i < other.size_) ? other.data_[i] : 0;
         if (sign == PLUS) {
@@ -175,8 +180,9 @@ BigInt BigInt::abs_add_sub(const BigInt & other, OpSgn sign) const {
     }
 
     size_t digits = buffer_size;
-    for(; digits > 0; --digits) {
-        if (buffer[digits - 1] != 0) break;
+    for (; digits > 0; --digits) {
+        if (buffer[digits - 1] != 0)
+            break;
     }
 
     BigInt tmp;
@@ -200,7 +206,7 @@ BigInt operator+(const BigInt & a, const BigInt & b) {
 
     // первый отрицательный, второй - положительный
     if (a.neg_signum && !b.neg_signum) {
-        if(a.abs_lower(b)) {
+        if (a.abs_lower(b)) {
             return b.abs_add_sub(a, MINUS);
         } else {
             BigInt tmp(a.abs_add_sub(b, MINUS));
@@ -212,7 +218,7 @@ BigInt operator+(const BigInt & a, const BigInt & b) {
 
     // первый положительный, второй - отрицательный
     if (!a.neg_signum && b.neg_signum) {
-        if(a.abs_lower(b)) {
+        if (a.abs_lower(b)) {
             BigInt tmp(b.abs_add_sub(a, MINUS));
             tmp.neg_signum = true;
             return tmp;
@@ -229,7 +235,7 @@ BigInt operator+(const BigInt & a, const BigInt & b) {
 BigInt operator-(const BigInt & a, const BigInt & b) {
     // оба операнда положительные
     if (!a.neg_signum && !b.neg_signum) {
-        if(a.abs_lower(b)) {
+        if (a.abs_lower(b)) {
             BigInt tmp(b.abs_add_sub(a, MINUS));
             tmp.neg_signum = true;
             return tmp;
@@ -240,7 +246,7 @@ BigInt operator-(const BigInt & a, const BigInt & b) {
 
     // оба операнда отрицательные
     if (a.neg_signum && b.neg_signum) {
-        if(a.abs_lower(b)) {
+        if (a.abs_lower(b)) {
             return b.abs_add_sub(a, MINUS);
         } else {
             BigInt tmp(a.abs_add_sub(b, MINUS));
@@ -259,7 +265,3 @@ BigInt operator-(const BigInt & a, const BigInt & b) {
     // первый положительный, второй - отрицательный
     return a.abs_add_sub(b, PLUS);
 }
-
-
-
-
