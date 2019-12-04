@@ -25,42 +25,29 @@ struct args2strings {
         make_strings(std::forward<Rest>(args)...);
     }
 
+    const std::string& operator[](size_t index) const {
+        if (index >= strs.size()) {
+            throw std::runtime_error("Error argument number");
+        }
+        return strs[index];
+    };
+
     std::vector<std::string> strs;
 };
 
-// Функция проверяет фигурные скобки
-bool check_brackets(const std::string& format_string) {
-    int balance = 0;
-    for (const auto & c : format_string) {
-        if (c == '{') {
-            balance++;
-        }
-        if (c == '}') {
-            balance--;
-        }
-        if (balance < 0 || balance > 1) return false;
-    }
-    return balance == 0;
-}
-
-
 // Функция преобразует номер в виде строки в число
 size_t str2num(const std::string& number_string) {
-    // Сначала проверяем что строка имеет вид:
-    // пробел, пробел, ..., цифра, цифра, ..., пробел, пробел, ...
-    size_t index = 0;
-    while (std::isspace(number_string[index])) index++;
-    while (std::isdigit(number_string[index])) index++;
-    while (std::isspace(number_string[index])) index++;
-    if (index != number_string.size()) {
+    size_t arg_number = 0;
+    size_t pos = 0;
+    try {
+        arg_number = std::stoi(number_string, &pos);
+    } catch (const std::exception& error) {
         throw std::runtime_error("Error argument number");
     }
 
-    // Преобразуем строку в число
-    size_t arg_number = 0;
-    try {
-        arg_number = std::stoi(number_string);
-    } catch (const std::exception& error) {
+    // Проверяем, что в строке после числа нет ничего лишнего
+    while (std::isspace(number_string[pos])) pos++;
+    if (pos != number_string.size()) {
         throw std::runtime_error("Error argument number");
     }
 
@@ -70,34 +57,31 @@ size_t str2num(const std::string& number_string) {
 // Функция форматирования
 template<class ... Args>
 std::string format(const std::string& format_string, Args&&... args) {
-    if (!check_brackets(format_string)) {
-        throw std::runtime_error("Error brackets");
-    }
-
     args2strings args_strings(std::forward<Args>(args)...);
 
     std::string rez;
-    std::string::size_type search_pos = 0;
-    while(true) {
-        std::string::size_type open_bracket_pos = format_string.find("{", search_pos);
-        std::string::size_type close_bracket_pos = format_string.find("}", search_pos);
-
-        rez += format_string.substr(search_pos, open_bracket_pos - search_pos);
-
-        if ((open_bracket_pos == format_string.npos)) break;
-
-        auto arg_number_string = format_string.substr(
-                open_bracket_pos + 1, close_bracket_pos - open_bracket_pos - 1);
-        size_t arg_number = str2num(arg_number_string);
-
-        if (arg_number >= args_strings.strs.size()) {
-            throw std::runtime_error("Error argument number");
+    std::string arg_number_str;
+    int balance_brackets = 0;
+    for(const auto & c : format_string) {
+        if (c == '{') {
+            balance_brackets++;
+            if (balance_brackets > 1) {
+                throw std::runtime_error("Error brackets");
+            }
+            arg_number_str = "";
+        } else if (c == '}') {
+            balance_brackets--;
+            if (balance_brackets < 0) {
+                throw std::runtime_error("Error brackets");
+            }
+            rez += args_strings[str2num(arg_number_str)];
+        } else {
+            if (balance_brackets == 0) rez += c;
+            if (balance_brackets == 1) arg_number_str += c;
         }
-
-        rez += args_strings.strs[arg_number];
-
-        search_pos = close_bracket_pos + 1;
     }
+
+    if (balance_brackets != 0) throw std::runtime_error("Error brackets");
 
     return rez;
 }
