@@ -20,16 +20,7 @@ class Vector {
             , capacity_(8)
             , data_(alloc_.allocate(capacity_)) {}
 
-        explicit Vector(size_type count)
-            : size_(count)
-            , capacity_(count)
-            , data_(alloc_.allocate(count)) {
-            for (size_type i = 0; i < size_; i++) {
-                alloc_.construct(data_ + i, value_type());
-            }
-        }
-
-        Vector(size_type count, const value_type& defaultValue)
+        explicit Vector(size_type count, const value_type& defaultValue = value_type())
             : size_(count)
             , capacity_(count)
             , data_(alloc_.allocate(count)) {
