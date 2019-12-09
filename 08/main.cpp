@@ -23,8 +23,8 @@ struct customClass {
 
     ~customClass() { destructor_calls++; }
 
-    customClass & operator=(const customClass & copied) = default;
-    customClass & operator=(customClass && moved) = default;
+    customClass & operator=(const customClass & copied) = delete;
+    customClass & operator=(customClass && moved) = delete;
 
     static size_t constructor_calls;
     static size_t destructor_calls;
@@ -192,6 +192,11 @@ TEST_CASE( "test Vector" ) {
     }
 
     SECTION( "test calls constructors/destructors of base class" ) {
+        {
+            Vector<customClass> v = {1, 2, 3, 4, 5};
+        }
+        REQUIRE(customClass::constructor_calls == customClass::destructor_calls);
+
         {
             Vector<customClass> v(10, 5);
         }

@@ -25,7 +25,7 @@ class Vector {
             , capacity_(count)
             , data_(alloc_.allocate(count)) {
             for (size_type i = 0; i < size_; i++) {
-              new (data_ + i) value_type;
+                alloc_.construct(data_ + i, value_type());
             }
         }
 
@@ -34,7 +34,7 @@ class Vector {
             , capacity_(count)
             , data_(alloc_.allocate(count)) {
             for (size_type i = 0; i < size_; i++) {
-              new (data_ + i) value_type(defaultValue);
+                alloc_.construct(data_ + i, defaultValue);
             }
         }
 
@@ -46,13 +46,13 @@ class Vector {
             auto current = init.begin();
             const auto end = init.end();
             while (current != end) {
-                data_[i++] = *current++;
+                alloc_.construct(data_ + i++, *current++);
             }
         }
 
         ~Vector() {
             for (size_type i = 0; i < size_; i++) {
-              data_[i].~value_type();
+                alloc_.destroy(data_ + i);
             }
             alloc_.deallocate(data_, capacity_);
         }
@@ -73,16 +73,15 @@ class Vector {
 
         void push_back(value_type&& value) {
             if (size_ == capacity_) reserve(capacity_ * 2);
-            std::swap(value, data_[size_++]);
+            alloc_.construct(data_ + size_++, std::forward<value_type>(value));
         }
         void push_back(const value_type& value) {
             if (size_ == capacity_) reserve(capacity_ * 2);
-            new (data_ + size_) value_type(value);
-            size_++;
+            alloc_.construct(data_ + size_++, value);
         }
 
         void pop_back() {
-            data_[--size_].~value_type();
+            alloc_.destroy(data_ + --size_);
         }
 
         bool empty() const noexcept {
@@ -97,7 +96,9 @@ class Vector {
             if (capacity_ < count) {
                 pointer newData = alloc_.allocate(count);
                 for (size_type i = 0; i < size_; i++) {
-                    newData[i] = data_[i];
+                    alloc_.construct(newData + i,
+                            std::forward<value_type>(data_[i]));
+                    alloc_.destroy(data_ + i);
                 }
                 capacity_ = count;
                 alloc_.deallocate(data_, capacity_);
@@ -110,12 +111,13 @@ class Vector {
             return capacity_;
         }
 
-        void resize(size_type newSize) {
+        void resize(size_type newSize,
+                const value_type& defaultValue = value_type()) {
             if (newSize == size_) return;
 
             if (newSize < size_) {
                 for (size_t i = newSize; i < size_; ++i) {
-                    data_[i].~value_type();
+                    alloc_.destroy(data_ + i);
                 }
                 size_ = newSize;
                 return;
@@ -126,24 +128,14 @@ class Vector {
             }
 
             for (size_t i = size_; i < newSize; ++i) {
-                new (data_ + i) value_type();
+                alloc_.construct(data_ + i, defaultValue);
             }
             size_ = newSize;
         }
 
-        void resize(size_type newSize, const value_type& defaultValue) {
-            size_type oldSize = size_;
-            resize(newSize);
-            if (oldSize < newSize) {
-                for (size_t i = oldSize; i < newSize; ++i) {
-                    data_[i] = defaultValue;
-                }
-            }
-        }
-
         void clear() {
             for (size_t i = 0; i < size_; ++i) {
-                data_[i].~value_type();
+                alloc_.destroy(data_ + i);
             }
             size_ = 0;
         }
