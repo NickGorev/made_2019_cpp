@@ -5,7 +5,7 @@
 
 struct ThreadPool {
     public:
-        explicit ThreadPool(size_t poolSize = 1) {
+        explicit ThreadPool(size_t poolSize = 1) : stop_flag(false) {
             // Создаем poolSize потоков и в каждом запускаем thread_task
             threads.reserve(poolSize);
             for (std::size_t i = 0; i < poolSize; i++) {
@@ -42,20 +42,12 @@ struct ThreadPool {
         ~ThreadPool() {
             {
                 std::unique_lock<std::mutex> lock(mtx_tasks);
-                tasks.clear();
-                // чтобы остановить все потоки, кладем в очередь
-                // пустые задачи
-                for (size_t i = 0; i < threads.size(); i++) {
-                    tasks.push_back({});
-                }
+                stop_flag = true;
             }
-            // разбудим все потоки, чтобы они обработали
-            // пустые задачи и завершились
             cond_var_tasks.notify_all();
             for (auto& thread : threads) {
                 thread.join();
             }
-
         }
 
     private:
@@ -65,6 +57,7 @@ struct ThreadPool {
         std::deque<std::packaged_task<void()>> tasks;
         std::vector<std::thread> threads;
 
+        bool stop_flag;
 
         void thread_task() {
             while (true) {
@@ -72,17 +65,17 @@ struct ThreadPool {
                 {
                     std::unique_lock<std::mutex> lock(mtx_tasks);
                     // Если задачи нет, поток засыпает, ожидая оповещения
-                    if (tasks.empty()) {
-                        cond_var_tasks.wait(lock, [&]{return !tasks.empty();});
+                    if (tasks.empty() && !stop_flag) {
+                        cond_var_tasks.wait(lock,
+                                [&]{return !tasks.empty() || stop_flag;});
                     }
+                    // если выставлен флаг остановки, прерываем выполнение
+                    if (stop_flag) return;
                     // иначе, извлекаем задачу из очереди
                     task = std::move(tasks.front());
                     tasks.pop_front();
                 }
-                // если задача пустая, прерываем поток
-                if (!task.valid())
-                    return;
-                // иначе, выполняем задачу
+                // выполняем задачу
                 task();
             }
         }
