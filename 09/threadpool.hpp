@@ -7,9 +7,9 @@ struct ThreadPool {
     public:
         explicit ThreadPool(size_t poolSize = 1) {
             // Создаем poolSize потоков и в каждом запускаем thread_task
+            threads.reserve(poolSize);
             for (std::size_t i = 0; i < poolSize; i++) {
-                threads.push_back(std::async(std::launch::async,
-                        [this] {thread_task();}));
+                threads.emplace_back(std::thread([this]{thread_task();}));
             }
         }
 
@@ -52,7 +52,10 @@ struct ThreadPool {
             // разбудим все потоки, чтобы они обработали
             // пустые задачи и завершились
             cond_var_tasks.notify_all();
-            threads.clear();
+            for (auto& thread : threads) {
+                thread.join();
+            }
+
         }
 
     private:
@@ -60,7 +63,7 @@ struct ThreadPool {
         std::condition_variable cond_var_tasks;
 
         std::deque<std::packaged_task<void()>> tasks;
-        std::vector<std::future<void>> threads;
+        std::vector<std::thread> threads;
 
 
         void thread_task() {
