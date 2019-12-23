@@ -9,7 +9,7 @@ struct ThreadPool {
             // Создаем poolSize потоков и в каждом запускаем thread_task
             threads.reserve(poolSize);
             for (std::size_t i = 0; i < poolSize; i++) {
-                threads.emplace_back(std::thread([this]{thread_task();}));
+                threads.emplace_back([this]{thread_task();});
             }
         }
 
